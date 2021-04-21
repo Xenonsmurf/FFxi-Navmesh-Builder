@@ -101,7 +101,7 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 * float m_detailSampleDist = 6.0f;
 * float m_detailSampleMaxError = 1.0f;
 	
-#### if building meshes for player movement, use these settings.
+### if building meshes for player movement, use these settings.
 
 * float m_tileSize = 64;         <<<< this can be changed for small zones.
 * float m_cellSize = 0.20f;
@@ -122,33 +122,32 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 
 Here you can dump the zone collision data to obj files,
 
-## 1. Click Load Zones.
-this zone dat list is provided by Devi Ltti (Thanks Devi).
-* Select ZoneList.xml.
-This will add all the Zones to the ListBox.
-
-# Please Note: You may need to edit ZoneList.xml if your installation of Final Fantasy XI is not C:/Program Files (x86)/PlayOnline/SquareEnix/FINAL FANTASY XI/.
+1. Click Load Zones.
+This will read the English ZoneList.dat and populate the DataGridView with the zones found in the .dat.
 
 2. Select the zone you want to build the collision OBJ file for.
 
-2.1. Click to Build Selected Zone OBJ file.
+3. Click "Build a obj file for selected Zone." 
+this will build an obj file using collision data from the main zone.dat plus any submodels that are loaded.
 
-3. Click this if you want to Build "All" collision OBJ file for current List.
-# Please Note: 
-Some Zones (Airships) take a while to dump the obj files.
+4 Click "Build obj files for all zones."
+this will build all obj for all zones using collision data from the main zone.dat plus any submodels that are loaded.
 
 #### NavMesh Tab
 here you can build navmeshes using FFXINAV.dll
 
 1. These settings are the "Default settings Topaz NavMeshes are made with. Changes to these settings will affect performance on the server.
 
-2. Click this to set up the DLL's Settings you must do this first before you start dumping meshes.
+2. Click "Apply NavMesh Settings" this is a must, ffxinav.dll needs these settings to be able to build navmeshes.
 
-3. Click this to Select a OBJ file to build a NavMesh for.
+3. Click "Select obj file to build a NavMesh for." this will build a navmesh for the selected obj.
 
-4. Click this to start orstop building NavMeshes for all OBJ files in the Map Collision obj files folder.
+4. Click "Build NavMeshes for all obj files." this will build navmeshes for all obj files.
+
+
 # Pleae Note: 
 When you click stop it will finish the Current NavMesh build.
+
 
 #### FAQ
 
@@ -170,11 +169,14 @@ When you click stop it will finish the Current NavMesh build.
        
 ##### when I select a zone from the list to build a collision obj file for nothing happens or I get an error?. 
    
-* you may need to edit zonelist.xml and change the path to where you have final fantasy xi installed.
+* open an issue and check what info is in log.bin.
 
 ##### How do i deal with doors? the navmesh wont go past them?.
    
-* If this happens, you can open the obj file in blender and delete the door, or you can open the obj and navmesh in recastdemo and add an offmesh links.
+* If this happens,you can...
+1. lower the agent radius 
+2. you can open the obj file in blender and delete the door, 
+3. you can open the obj and navmesh in recastdemo and add an offmesh links.
 
 #### FFXINAV DLL
 * CanSeeDestination.
@@ -201,7 +203,6 @@ When you click stop it will finish the Current NavMesh build.
 
 See the [open issues](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues) for a list of proposed features (and known issues).
 
-
 <!-- CONTACT -->
 ## Contact
 
@@ -212,6 +213,7 @@ Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://githu
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-* Devi Ltti for his zone.dat list and fixes to Vultures collision mesh extraction tool.
-* Vulture for his collision mesh extraction tool.
+* Devi Ltti, and Atom0s for their patience with my stupid questions.
+* Thorny for his improvements to ffxinav.dll
+* Vulture for his original dat.cs (collision mesh extraction tool).
 * The DarkStar project / Topaz team for providing invaluable insight into the underlying workings of the game. 
