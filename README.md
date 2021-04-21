@@ -206,7 +206,7 @@ See the [open issues](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues)
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@xen0nsmurf](https://twitter.com/xen0nsmurf)
+Discord xenonsmurf#3618
 
 Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder)
 
