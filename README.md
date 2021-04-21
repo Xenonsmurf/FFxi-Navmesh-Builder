@@ -19,8 +19,6 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 
@@ -238,3 +236,8 @@ Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://githu
 * Vulture for his collision mesh extraction tool.
 * The DarkStar project / Topaz team for providing invaluable insight into the underlying workings of the game. 
 
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/graphs/contributors
+[forks-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/network/members
+[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
