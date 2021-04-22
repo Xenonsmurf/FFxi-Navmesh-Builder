@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!--
 *** Thanks for checking out the Best-README-Template. If you have a suggestion
 *** that would make this better, please fork the repo and create a pull request
@@ -21,6 +22,8 @@
 [![Issues][issues-shield]][issues-url]
 
 
+=======
+>>>>>>> d738b73797b692be43b1922464ab5c8042b34fd7
 
 <!-- PROJECT LOGO -->
 <br />
@@ -33,7 +36,7 @@
 
   <p align="center">
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://www.youtube.com/playlist?list=PLsww_EXH6VoprH94s967sgt_RM4ENYmb0">View Demo</a>
@@ -59,7 +62,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#requirements">Requirements</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
@@ -80,20 +83,23 @@ Using this project you should be able to build .obj files using collision data s
 
 ### Built With
 
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
 * [Visual studios professional](https://visualstudio.microsoft.com/vs/professional/)
 * [.net5](https://dotnet.microsoft.com/download/dotnet/5.0)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+1. Run Ffxi_Navmesh_Builder.exe as Admin.
+2. Make sure your ffxi installation is correctly set, you can do this on the “dat” tab and click “set ffxi installation Path" and editing the textbox.
 
 ### Requirements
 
-You will need to install .net5 to be able to use this application.
+1. You will need to install .net5 to be able to use this application.
 please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
+
+2. FFXI Installed.
+
+
 ### Installation
 
 1. Download or Clone the repo.
@@ -121,7 +127,7 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 * float m_detailSampleDist = 6.0f;
 * float m_detailSampleMaxError = 1.0f;
 	
-#### if building meshes for player movement, use these settings.
+### if building meshes for player movement, use these settings.
 
 * float m_tileSize = 64;         <<<< this can be changed for small zones.
 * float m_cellSize = 0.20f;
@@ -142,33 +148,32 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 
 Here you can dump the zone collision data to obj files,
 
-## 1. Click Load Zones.
-this zone dat list is provided by Devi Ltti (Thanks Devi).
-* Select ZoneList.xml.
-This will add all the Zones to the ListBox.
-
-# Please Note: You may need to edit ZoneList.xml if your installation of Final Fantasy XI is not C:/Program Files (x86)/PlayOnline/SquareEnix/FINAL FANTASY XI/.
+1. Click Load Zones.
+This will read the English ZoneList.dat and populate the DataGridView with the zones found in the .dat.
 
 2. Select the zone you want to build the collision OBJ file for.
 
-2.1. Click to Build Selected Zone OBJ file.
+3. Click "Build a obj file for selected Zone." 
+this will build an obj file using collision data from the main zone.dat plus any submodels that are loaded.
 
-3. Click this if you want to Build "All" collision OBJ file for current List.
-# Please Note: 
-Some Zones (Airships) take a while to dump the obj files.
+4 Click "Build obj files for all zones."
+this will build all obj for all zones using collision data from the main zone.dat plus any submodels that are loaded.
 
 #### NavMesh Tab
 here you can build navmeshes using FFXINAV.dll
 
 1. These settings are the "Default settings Topaz NavMeshes are made with. Changes to these settings will affect performance on the server.
 
-2. Click this to set up the DLL's Settings you must do this first before you start dumping meshes.
+2. Click "Apply NavMesh Settings" this is a must, ffxinav.dll needs these settings to be able to build navmeshes.
 
-3. Click this to Select a OBJ file to build a NavMesh for.
+3. Click "Select obj file to build a NavMesh for." this will build a navmesh for the selected obj.
 
-4. Click this to start orstop building NavMeshes for all OBJ files in the Map Collision obj files folder.
+4. Click "Build NavMeshes for all obj files." this will build navmeshes for all obj files.
+
+
 # Pleae Note: 
 When you click stop it will finish the Current NavMesh build.
+
 
 #### FAQ
 
@@ -190,11 +195,14 @@ When you click stop it will finish the Current NavMesh build.
        
 ##### when I select a zone from the list to build a collision obj file for nothing happens or I get an error?. 
    
-* you may need to edit zonelist.xml and change the path to where you have final fantasy xi installed.
+* open an issue and check what info is in log.bin.
 
 ##### How do i deal with doors? the navmesh wont go past them?.
    
-* If this happens, you can open the obj file in blender and delete the door, or you can open the obj and navmesh in recastdemo and add an offmesh links.
+* If this happens,you can...
+1. lower the agent radius 
+2. you can open the obj file in blender and delete the door, 
+3. you can open the obj and navmesh in recastdemo and add an offmesh links.
 
 #### FFXINAV DLL
 * CanSeeDestination.
@@ -221,23 +229,26 @@ When you click stop it will finish the Current NavMesh build.
 
 See the [open issues](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues) for a list of proposed features (and known issues).
 
-
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@xen0nsmurf](https://twitter.com/xen0nsmurf)
+Discord xenonsmurf#3618
 
 Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder)
 
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
-* Devi Ltti for his zone.dat list and fixes to Vultures collision mesh extraction tool.
-* Vulture for his collision mesh extraction tool.
+* Devi Ltti, and Atom0s for their patience with my stupid questions.
+* Thorny for his improvements to ffxinav.dll
+* Vulture for his original dat.cs (collision mesh extraction tool).
 * The DarkStar project / Topaz team for providing invaluable insight into the underlying workings of the game. 
+<<<<<<< HEAD
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/graphs/contributors
 [forks-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/network/members
 [issues-url]: https://github.com/othneildrew/Best-README-Template/issues
+=======
+>>>>>>> d738b73797b692be43b1922464ab5c8042b34fd7
