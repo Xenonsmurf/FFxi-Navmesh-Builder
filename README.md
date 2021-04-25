@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -243,12 +225,11 @@ Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://githu
 * Thorny for his improvements to ffxinav.dll
 * Vulture for his original dat.cs (collision mesh extraction tool).
 * The DarkStar project / Topaz team for providing invaluable insight into the underlying workings of the game. 
-<<<<<<< HEAD
 
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+
 [contributors-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/graphs/contributors
 [forks-url]: https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/network/members
 [issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-=======
->>>>>>> d738b73797b692be43b1922464ab5c8042b34fd7
+
+
