@@ -1,18 +1,7 @@
 <div align="center">
   <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder">
     <img alt="Ffxi_Navmesh_Builder" width="200" heigth="200" src="images/icon.png">
-  </a>
-  <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder//issues">
-    <img src="https://img.shields.io/github/issues-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
-  </a>
-  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
-    <img src="https://img.shields.io/github/issues-closed-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
-  </a>
-  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
-    <img src="https://img.shields.io/github/issues-pr-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
-  </a>
-  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
-    <img src="https://img.shields.io/github/issues-pr-closed-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
+	</a>  
   </a>
 	<p align="center">
     <br />
