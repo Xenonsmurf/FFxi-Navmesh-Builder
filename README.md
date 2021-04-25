@@ -1,22 +1,20 @@
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-
-
-=======
->>>>>>> d738b73797b692be43b1922464ab5c8042b34fd7
-
-<!-- PROJECT LOGO -->
-<br />
-<p align="center">
+<div align="center">
   <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder">
-    <img src="images/icon.png" alt="Logo" width="80" height="80">
+    <img alt="Ffxi_Navmesh_Builder" width="200" heigth="200" src="images/icon.png">
   </a>
-
-  <h3 align="center">FFXI NavMesh Builder</h3>
-
-  <p align="center">
+  <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder//issues">
+    <img src="https://img.shields.io/github/issues-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
+  </a>
+  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
+    <img src="https://img.shields.io/github/issues-closed-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
+  </a>
+  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
+    <img src="https://img.shields.io/github/issues-pr-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
+  </a>
+  <a href="https://github.com//xenonsmurf/Ffxi_Navmesh_Builder/issues">
+    <img src="https://img.shields.io/github/issues-pr-closed-raw//xenonsmurf/Ffxi_Navmesh_Builder.svg?style=flat-square">
+  </a>
+	<p align="center">
     <br />
     <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder"><strong>Explore the docs »</strong></a>
     <br />
@@ -26,8 +24,7 @@
     <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues">Report Bug</a>
     ·
     <a href="https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues">Request Feature</a>
-  </p>
-</p>
+</div>
 
 
 
