@@ -51,8 +51,8 @@ Using this project you should be able to build .obj files using collision data s
 
 ## CheckSum
 
-* FFXI Navmesh Builder.exe version 1.0.0.1762
-* MD5 Checksum = 5F204156FE7113CE43AB4938147480F5
+* FFXI Navmesh Builder.exe version 1.0.0.2488
+* MD5 Checksum = B6B11EAB3B27E571CE6CA4B741546AAC
 
 * FFXINAV.dll  1.0.1.4
 * MD5 Checksum = C6039F84A16884EC4269E65C652224DF
