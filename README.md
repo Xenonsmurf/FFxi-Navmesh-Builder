@@ -49,6 +49,14 @@ This project was created in hopes to make building navmeshes for FFXI easier, an
 Using this project you should be able to build .obj files using collision data stored in the Dats, and build navmeshes using those .obj files.
 
 
+## CheckSum
+
+* FFXI Navmesh Builder.exe
+* MD5 Checksum = 9C96816C1D8F6562E65ADA2B65241606 
+
+* FFXINAV.dll 
+* MD5 Checksum = C6039F84A16884EC4269E65C652224DF
+
 ### Built With
 
 * [Visual studios professional](https://visualstudio.microsoft.com/vs/professional/)
