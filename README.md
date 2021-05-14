@@ -51,10 +51,10 @@ Using this project you should be able to build .obj files using collision data s
 
 ## CheckSum
 
-* FFXI Navmesh Builder.exe
-* MD5 Checksum = 9C96816C1D8F6562E65ADA2B65241606 
+* FFXI Navmesh Builder.exe version 1.0.0.1762
+* MD5 Checksum = 5F204156FE7113CE43AB4938147480F5
 
-* FFXINAV.dll 
+* FFXINAV.dll  1.0.1.4
 * MD5 Checksum = C6039F84A16884EC4269E65C652224DF
 
 ### Built With
@@ -106,8 +106,8 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 ### if building meshes for player movement, use these settings.
 
 * float m_tileSize = 64;         <<<< this can be changed for small zones.
-* float m_cellSize = 0.20f;
-* float m_cellHeight = 0.010f;
+* float m_cellSize = 0.40f;
+* float m_cellHeight = 0.20f;
 * float m_agentHeight = 1.8f;    
 * float m_agentRadius = 0.7f;     <<<< if you make this too big it will break the mesh. 0.7f has been tested on most zones.
 * float m_agentMaxClimb = 0.5f;   <<<< this might need changing for some zones. max climb changes from 0.3f to 0.5f, trial and error
@@ -208,7 +208,7 @@ See the [open issues](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues)
 <!-- CONTACT -->
 ## Contact
 
-Discord xenonsmurf#3618
+Discord https://discord.gg/AbfvB5YEdg
 
 Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder)
 
@@ -219,6 +219,7 @@ Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://githu
 * Thorny for his improvements to ffxinav.dll
 * Vulture for his original dat.cs (collision mesh extraction tool).
 * The DarkStar project / Topaz team for providing invaluable insight into the underlying workings of the game. 
+* The RecastNavigation team, find the project here (https://github.com/recastnavigation/recastnavigation)
 
 
 
