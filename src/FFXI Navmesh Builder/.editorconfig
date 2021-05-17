@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# Default severity for analyzer diagnostics with category 'Globalization'
+dotnet_analyzer_diagnostic.category-Globalization.severity = none
+
+# HAA0302: Display class allocation to capture closure
+dotnet_diagnostic.HAA0302.severity = none
