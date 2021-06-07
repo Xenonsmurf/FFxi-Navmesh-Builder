@@ -208,8 +208,6 @@ See the [open issues](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/issues)
 <!-- CONTACT -->
 ## Contact
 
-Discord https://discord.gg/AbfvB5YEdg
-
 Project Link: [https://github.com/xenonsmurf/Ffxi_Navmesh_Builder](https://github.com/xenonsmurf/Ffxi_Navmesh_Builder)
 
 
