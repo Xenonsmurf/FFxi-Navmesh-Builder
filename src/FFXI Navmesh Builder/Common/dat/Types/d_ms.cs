@@ -82,7 +82,10 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// </summary>
         /// <value>The rom path.</value>
         private RomPath romPath { get; set; }
-
+        public void ChangePath(string path)
+        {
+            romPath.InstallPath = path;
+        }
         /// <summary>
         /// Decrypteds the specified data.
         /// </summary>

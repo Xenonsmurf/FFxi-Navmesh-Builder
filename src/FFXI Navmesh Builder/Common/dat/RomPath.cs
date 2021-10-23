@@ -58,7 +58,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// Gets or sets the install path.
         /// </summary>
         /// <value>The install path.</value>
-        private string InstallPath { get; set; }
+        public string InstallPath { get; set; }
 
         /// <summary>
         /// Gets the rom path.
@@ -111,7 +111,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// <summary>
         /// Initializes the table directory.
         /// </summary>
-        private void InitializeTableDirectory()
+        public void InitializeTableDirectory()
         {
             var vtable = $@"{InstallPath}VTABLE.DAT";
             var ftable = $@"{InstallPath}FTABLE.DAT";

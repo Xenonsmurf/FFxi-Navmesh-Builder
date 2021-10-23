@@ -292,7 +292,12 @@ namespace FFXI_Navmesh_Builder.Views
                     {
                         if (zone.Path == "NILL") continue;
                         if (zone.Path == "") continue;
-                        if (!File.Exists($@"{FFxiInstallPath}{zone.Path}")) continue;
+                        if (!File.Exists($@"{FFxiInstallPath}{zone.Path}"))
+                        {
+                            Log.AddDebugText(RtbDebug, $@"File not found,{ FFxiInstallPath}{zone.Path}.");
+                            continue;
+                        }
+                       
 
                         await DumpZoneDat(zone.Id, zone.Name, zone.Path);
                         if ((bool)TPNamesCB.IsChecked)
@@ -515,6 +520,11 @@ namespace FFXI_Navmesh_Builder.Views
         {
             if (FfxiPathTb.Text == string.Empty) return;
             FFxiInstallPath = FfxiPathTb.Text;
+            if (Dat != null)
+            {
+                Dat.ChangePath(FFxiInstallPath);
+            }
+            
             Log?.AddDebugText(RtbDebug, $@"FFxi installation path = {FFxiInstallPath}");
         }
 

@@ -33,6 +33,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// <param name="l">The l.</param>
         /// <param name="mf">The mf.</param>
         /// <param name="ffxIpath">The FFX ipath.</param>
+       
         public dat(Log l, HomeView mf, string ffxIpath)
         {
             try
@@ -52,7 +53,13 @@ namespace Ffxi_Navmesh_Builder.Common.dat
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(dat)}");
             }
         }
-
+        public void ChangePath(string path)
+        {
+            InstallPath = path;
+            RomPath.InstallPath = path;
+            RomPath.InitializeTableDirectory();
+            Dms.ChangePath(path);
+        }
         /// <summary>
         /// Gets or sets the DMS.
         /// </summary>

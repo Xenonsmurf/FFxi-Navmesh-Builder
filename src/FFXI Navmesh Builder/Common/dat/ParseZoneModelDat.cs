@@ -57,6 +57,11 @@ namespace Ffxi_Navmesh_Builder.Common.dat
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(ParseZoneModelDat)}");
             }
         }
+        public void ChangePath(string path)
+        {
+            InstallPath = path;
+            RomPath.InstallPath = path;
+        }
 
         /// <summary>
         /// Gets or sets the chunks.
