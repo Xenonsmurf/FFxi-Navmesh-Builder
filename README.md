@@ -52,7 +52,7 @@ Using this project you should be able to build .obj files using collision data s
 ## CheckSum
 
 * FFXI Navmesh Builder.exe version 1.0.0.2890
-* MD5 Checksum = 3D1E4C8DBC59F2176EF709C8A08E4565
+* MD5 Checksum = 8ed6b5be9339e597c32844b9aec73a90
 
 * FFXINAV.dll  1.0.1.5
 * MD5 Checksum = fd877064d9387db812252cceac14c691
@@ -124,15 +124,18 @@ please download .net5 from (https://dotnet.microsoft.com/download/dotnet/5.0)
 
 Here you can dump the zone collision data to obj files,
 
-1. Click Load Zones.
+1 Set FFXI installation Path.
+Path must end with a trailing slash.
+
+2. Click Load Zones.
 This will read the English ZoneList.dat and populate the DataGridView with the zones found in the .dat.
 
-2. Select the zone you want to build the collision OBJ file for.
+3. Select the zone you want to build the collision OBJ file for.
 
-3. Click "Build a obj file for selected Zone." 
+4. Click "Build a obj file for selected Zone." 
 this will build an obj file using collision data from the main zone.dat plus any submodels that are loaded.
 
-4 Click "Build obj files for all zones."
+5. Click "Build obj files for all zones."
 this will build all obj for all zones using collision data from the main zone.dat plus any submodels that are loaded.
 
 #### NavMesh Tab
