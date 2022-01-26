@@ -167,7 +167,8 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
 
                                 temp.Type = "Model";
                                 temp.FileId = MemoryMarshal.Read<int>(block[(0x40 + i * 0x40 + 0x2c)..]);
-                                var fileId = temp.FileId + 100;
+                                var fileId = temp.FileId < 600 ? temp.FileId + 100 : temp.FileId + 83191;
+                                temp.FileId = fileId;
                                 temp.RomPath = ($@"{InstallPath}{RomPath.GetRomPath(fileId, RomPath.TableDirectory)}");
                                 SubRegionModel++;
                                 break;
