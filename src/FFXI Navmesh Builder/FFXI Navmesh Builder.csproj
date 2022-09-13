@@ -21,6 +21,7 @@
   <Authors>Xenonsmurf</Authors>
   <Copyright>Copyright © Xenonsmurf 2021</Copyright>
   <Product>FFXI NAVMESH BUILDER</Product>
+  <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	
   </PropertyGroup>
   <ItemGroup>

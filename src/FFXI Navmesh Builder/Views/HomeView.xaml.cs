@@ -182,14 +182,12 @@ namespace FFXI_Navmesh_Builder.Views
                         _cancellationToken?.Cancel();
 
                         return;
-                        break;
 
                     case "Stop building NavMeshes.":
                         _buildMeshes = false;
                         _cancellationToken?.Cancel();
                         AllObjBtn.Content = @"Build NavMeshes for all .OBJ files.";
                         return;
-                        break;
                 }
             }
             catch (Exception ex)
