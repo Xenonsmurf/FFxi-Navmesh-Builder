@@ -25,11 +25,13 @@ namespace Ffxi_Navmesh_Builder.Common
         /// </summary>
         /// <value>The identifier.</value>
         [XmlAttribute("ID")] public int Id { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>The name.</value>
         [XmlAttribute("Name")] public string Name { get; set; }
+
         /// <summary>
         /// Gets or sets the path.
         /// </summary>

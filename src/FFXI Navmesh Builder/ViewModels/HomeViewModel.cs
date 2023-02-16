@@ -40,11 +40,13 @@ namespace FFXI_Navmesh_Builder.ViewModels
         /// </summary>
         /// <value>The hv.</value>
         public HomeView Hv { get; }
+
         /// <summary>
         /// Gets the main.
         /// </summary>
         /// <value>The main.</value>
         public MainWindow Main { get; }
+
         /// <summary>
         /// Gets the mf.
         /// </summary>

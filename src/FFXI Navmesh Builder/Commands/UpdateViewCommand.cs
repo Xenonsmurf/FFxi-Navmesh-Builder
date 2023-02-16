@@ -53,11 +53,13 @@ namespace FFXI_Navmesh_Builder.Commands
         /// </summary>
         /// <value>The hv.</value>
         public HomeView HV { get; set; }
+
         /// <summary>
         /// Gets or sets the iv.
         /// </summary>
         /// <value>The iv.</value>
         public InitializeView IV { get; set; }
+
         /// <summary>
         /// Gets or sets the mf.
         /// </summary>

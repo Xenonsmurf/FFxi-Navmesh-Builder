@@ -54,6 +54,7 @@ namespace FFXI_Navmesh_Builder.ViewModels
         /// </summary>
         /// <value>The mf.</value>
         public MainWindow MF { get; set; }
+
         /// <summary>
         /// Gets or sets the iv.
         /// </summary>

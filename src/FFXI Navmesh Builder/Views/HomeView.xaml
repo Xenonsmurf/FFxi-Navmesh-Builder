@@ -49,7 +49,7 @@
                                 <ToggleButton x:Name="SubRegionCb"  HorizontalAlignment="Right" Margin = "0,2" Click="SubRegionCb_Click" Content="Save Subregion info for selected zone to xml ." />
                                 <ToggleButton x:Name="EntityCb" HorizontalAlignment="Right" Margin = "0,2" Click="EntityCb_Click" Content="Parse Entity dat for selected zone and save to xml." />
                                 <ToggleButton x:Name="IDonlyCb" HorizontalAlignment="Right" Margin = "0,2" Content="Save as zone ID not zone Name." Click="IDonlyCb_Click" />
-                                <ToggleButton x:Name="TPNamesCB" HorizontalAlignment="Right" Margin = "0,2" Content="Save as Topaz Zone Names" Click="TPNamesCB_Click"/>
+                                <ToggleButton x:Name="TPNamesCB" HorizontalAlignment="Right" Margin = "0,2" Content="Save as Topaz Zone Names" Click="TPNamesCB_Click" />
                             </StackPanel>
                         </Grid>
                     </DockPanel>

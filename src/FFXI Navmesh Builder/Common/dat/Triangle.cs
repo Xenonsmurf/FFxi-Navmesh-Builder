@@ -22,6 +22,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// The in0
         /// </summary>
         public int In0;
+
         /// <summary>
         /// The iv0
         /// </summary>

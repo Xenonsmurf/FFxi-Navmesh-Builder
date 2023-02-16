@@ -37,6 +37,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// </summary>
         /// <value>The log.</value>
         public Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the main.
         /// </summary>

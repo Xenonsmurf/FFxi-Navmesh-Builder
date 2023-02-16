@@ -49,31 +49,37 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// </summary>
         /// <value>The log.</value>
         public Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the main.
         /// </summary>
         /// <value>The main.</value>
         public HomeView Main { get; set; }
+
         /// <summary>
         /// Gets or sets the sub region model.
         /// </summary>
         /// <value>The sub region model.</value>
         public int SubRegionModel { get; set; }
+
         /// <summary>
         /// Gets or sets the sub regions.
         /// </summary>
         /// <value>The sub regions.</value>
         public BindingList<SubRegion> SubRegions { get; set; }
+
         /// <summary>
         /// Gets or sets the install path.
         /// </summary>
         /// <value>The install path.</value>
         private string InstallPath { get; set; }
+
         /// <summary>
         /// Gets or sets the rom path.
         /// </summary>
         /// <value>The rom path.</value>
         private RomPath RomPath { get; set; }
+
         /// <summary>
         /// Gets or sets the sr sub regions.
         /// </summary>

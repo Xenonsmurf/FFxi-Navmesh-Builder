@@ -25,16 +25,19 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// </summary>
         /// <value>The data.</value>
         public byte[] Data { get; init; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; init; }
+
         /// <summary>
         /// Gets or sets the size.
         /// </summary>
         /// <value>The size.</value>
         public uint Size { get; init; }
+
         /// <summary>
         /// Gets or sets the type.
         /// </summary>

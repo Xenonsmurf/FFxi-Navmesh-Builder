@@ -33,7 +33,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// <param name="l">The l.</param>
         /// <param name="mf">The mf.</param>
         /// <param name="ffxIpath">The FFX ipath.</param>
-       
+
         public dat(Log l, HomeView mf, string ffxIpath)
         {
             try
@@ -53,6 +53,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(dat)}");
             }
         }
+
         public void ChangePath(string path)
         {
             InstallPath = path;
@@ -60,41 +61,49 @@ namespace Ffxi_Navmesh_Builder.Common.dat
             RomPath.InitializeTableDirectory();
             Dms.ChangePath(path);
         }
+
         /// <summary>
         /// Gets or sets the DMS.
         /// </summary>
         /// <value>The DMS.</value>
         public d_ms Dms { get; set; }
+
         /// <summary>
         /// Gets or sets the entity.
         /// </summary>
         /// <value>The entity.</value>
         public Entity Entity { get; set; }
+
         /// <summary>
         /// Gets or sets the zones.
         /// </summary>
         /// <value>The zones.</value>
         public List<Zones> Zones { get; set; }
+
         /// <summary>
         /// Gets or sets the dat types.
         /// </summary>
         /// <value>The dat types.</value>
         private List<Zones> _DatTypes { get; set; }
+
         /// <summary>
         /// Gets or sets the install path.
         /// </summary>
         /// <value>The install path.</value>
         private string InstallPath { get; set; }
+
         /// <summary>
         /// Gets or sets the log.
         /// </summary>
         /// <value>The log.</value>
         private Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the main.
         /// </summary>
         /// <value>The main.</value>
         private HomeView Main { get; set; }
+
         /// <summary>
         /// Gets or sets the rom path.
         /// </summary>
@@ -110,17 +119,24 @@ namespace Ffxi_Navmesh_Builder.Common.dat
             {
                 var path = ($@"{AppDomain.CurrentDomain.BaseDirectory}");
                 if (!Directory.Exists(path))
+                {
                     Directory.CreateDirectory(path);
-                if (!Directory.Exists(path)) return;
+                }
+
                 var outFile = File.Create($@"{path}\\datTypes.xml");
-                var formatter = new XmlSerializer(_DatTypes.GetType());
-                formatter.Serialize(outFile, _DatTypes);
-                outFile.Close();
+                using (outFile)
+                {
+                    var formatter = new XmlSerializer(_DatTypes.GetType());
+                    formatter.Serialize(outFile, _DatTypes);
+                }
             }
             catch (Exception ex)
             {
                 Log.LogFile(ex.ToString(), nameof(dat));
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(dat)}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.ToString());
+                Console.ResetColor();
             }
         }
 
@@ -131,7 +147,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         public void ParseDat(int fileId)
         {
             var datPath = RomPath.GetRomPath(fileId, RomPath.TableDirectory);
-            var data = File.ReadAllBytes($@"{InstallPath }{datPath}").AsSpan();
+            var data = File.ReadAllBytes($@"{InstallPath}{datPath}").AsSpan();
             if (data.Length <= 0) return;
             var value = MemoryMarshal.Read<int>(data[4..]);
             var identifier = Encoding.ASCII.GetString(data.Slice(0, 4)).TrimStart('\0').TrimEnd('\0');

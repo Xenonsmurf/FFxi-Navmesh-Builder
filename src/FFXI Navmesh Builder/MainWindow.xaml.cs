@@ -77,7 +77,7 @@ namespace FFXI_Navmesh_Builder
         /// Returns a <see cref="System.String" /> that represents this instance.
         /// </summary>
         /// <returns>A <see cref="System.String" /> that represents this instance.</returns>
-        public sealed override string ToString()
+        public override sealed string ToString()
         {
             return base.ToString();
         }

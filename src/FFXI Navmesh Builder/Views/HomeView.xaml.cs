@@ -13,8 +13,10 @@
 // ***********************************************************************
 using Ffxi_Navmesh_Builder.Common;
 using Ffxi_Navmesh_Builder.Common.dat;
+using FFXI_Navmesh_Builder.Common;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -24,8 +26,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
-using System.Collections.Generic;
-using FFXI_Navmesh_Builder.Common;
+
 namespace FFXI_Navmesh_Builder.Views
 {
     /// <summary>
@@ -43,6 +44,7 @@ namespace FFXI_Navmesh_Builder.Views
         /// The build meshes
         /// </summary>
         private bool _buildMeshes;
+
         /// <summary>
         /// Gets or sets the tnames.
         /// </summary>
@@ -93,21 +95,25 @@ namespace FFXI_Navmesh_Builder.Views
         /// </summary>
         /// <value>The f fxi install path.</value>
         public string FFxiInstallPath { get; set; } = "C:/Program Files (x86)/PlayOnline/SquareEnix/FINAL FANTASY XI/";
+
         /// <summary>
         /// Gets or sets the ffxi nav.
         /// </summary>
         /// <value>The ffxi nav.</value>
         private Ffxinav _ffxiNav { get; set; }
+
         /// <summary>
         /// Gets or sets the dat.
         /// </summary>
         /// <value>The dat.</value>
         private dat Dat { get; set; }
+
         /// <summary>
         /// Gets or sets the log.
         /// </summary>
         /// <value>The log.</value>
         private Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the zone dat.
         /// </summary>
@@ -130,7 +136,7 @@ namespace FFXI_Navmesh_Builder.Views
                         AllObjBtn.Content = @"Stop building NavMeshes.";
                         _buildMeshes = true;
                         _cancellationToken = new CancellationTokenSource();
-                        var path = $@"{ Directory.GetCurrentDirectory()}\Map Collision obj files";
+                        var path = $@"{Directory.GetCurrentDirectory()}\Map Collision obj files";
                         var fileCount = Directory.GetFiles(path, "*.obj", SearchOption.AllDirectories).Length;
                         Log.AddDebugText(RtbDebug, $@"{fileCount.ToString()}.obj files fould in Map Collision obj folder");
                         foreach (var file in Directory.EnumerateFiles(string.Format(path, "*.obj")))
@@ -292,10 +298,9 @@ namespace FFXI_Navmesh_Builder.Views
                         if (zone.Path == "") continue;
                         if (!File.Exists($@"{FFxiInstallPath}{zone.Path}"))
                         {
-                            Log.AddDebugText(RtbDebug, $@"File not found,{ FFxiInstallPath}{zone.Path}.");
+                            Log.AddDebugText(RtbDebug, $@"File not found,{FFxiInstallPath}{zone.Path}.");
                             continue;
                         }
-                       
 
                         await DumpZoneDat(zone.Id, zone.Name, zone.Path);
                         if ((bool)TPNamesCB.IsChecked)
@@ -309,7 +314,7 @@ namespace FFXI_Navmesh_Builder.Views
                             }
                         }
                         else
-                        ZoneDat.Mzb.WriteObj(IDonlyCb.IsChecked == true ? zone.Id.ToString() : zone.Name);
+                            ZoneDat.Mzb.WriteObj(IDonlyCb.IsChecked == true ? zone.Id.ToString() : zone.Name);
 
                         BuildObJbtn.IsEnabled = true;
                     }
@@ -367,7 +372,7 @@ namespace FFXI_Navmesh_Builder.Views
                             foreach (var zone in Dat.Dms._zones)
                             {
                                 await DumpZoneDat(zone.Id, zone.Name, zone.Path);
-                     
+
                                 if ((bool)TPNamesCB.IsChecked)
                                 {
                                     foreach (KeyValuePair<int, string> tz in Tnames.zoneNames)
@@ -522,7 +527,7 @@ namespace FFXI_Navmesh_Builder.Views
             {
                 Dat.ChangePath(FFxiInstallPath);
             }
-            
+
             Log?.AddDebugText(RtbDebug, $@"FFxi installation path = {FFxiInstallPath}");
         }
 
@@ -782,8 +787,7 @@ namespace FFXI_Navmesh_Builder.Views
                 IDonlyCb.IsEnabled = false;
             }
             else
-                IDonlyCb.IsEnabled = true ;
-
+                IDonlyCb.IsEnabled = true;
         }
 
         /// <summary>
@@ -798,7 +802,6 @@ namespace FFXI_Navmesh_Builder.Views
                 TPNamesCB.IsEnabled = false;
             }
             else TPNamesCB.IsEnabled = true;
-
         }
     }
 }

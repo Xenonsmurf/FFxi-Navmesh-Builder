@@ -57,6 +57,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(ParseZoneModelDat)}");
             }
         }
+
         public void ChangePath(string path)
         {
             InstallPath = path;
@@ -68,51 +69,61 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         /// </summary>
         /// <value>The chunks.</value>
         public List<DatChunk> Chunks { get; set; }
+
         /// <summary>
         /// Gets or sets the MMB.
         /// </summary>
         /// <value>The MMB.</value>
         public Mmb Mmb { get; set; }
+
         /// <summary>
         /// Gets or sets the MZB.
         /// </summary>
         /// <value>The MZB.</value>
         public Mzb Mzb { get; set; }
+
         /// <summary>
         /// Gets or sets the rid.
         /// </summary>
         /// <value>The rid.</value>
         public Rid Rid { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether [dump s rto XML].
         /// </summary>
         /// <value><c>true</c> if [dump s rto XML]; otherwise, <c>false</c>.</value>
         private bool DumpSRtoXml { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the file.
         /// </summary>
         /// <value>The name of the file.</value>
         private string FileName { get; set; }
+
         /// <summary>
         /// Gets or sets the install path.
         /// </summary>
         /// <value>The install path.</value>
         private string InstallPath { get; set; }
+
         /// <summary>
         /// Gets or sets the log.
         /// </summary>
         /// <value>The log.</value>
         private Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the main.
         /// </summary>
         /// <value>The main.</value>
         private HomeView Main { get; set; }
+
         /// <summary>
         /// Gets or sets the rom path.
         /// </summary>
         /// <value>The rom path.</value>
         private RomPath RomPath { get; set; }
+
         /// <summary>
         /// Gets or sets the zone identifier.
         /// </summary>

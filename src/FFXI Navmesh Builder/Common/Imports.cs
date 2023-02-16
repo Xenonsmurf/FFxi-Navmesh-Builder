@@ -172,12 +172,11 @@ namespace Ffxi_Navmesh_Builder.Common
         /// <param name="file">The file.</param>
         public async Task Dump_NavMesh(string file)
         {
-                if(DumpNavMesh(_mPNativeObject, file))
-                {
-                    Unload();
-                    UnloadMeshBuilder();
-                }
-            
+            if (DumpNavMesh(_mPNativeObject, file))
+            {
+                Unload();
+                UnloadMeshBuilder();
+            }
         }
 
         /// <summary>

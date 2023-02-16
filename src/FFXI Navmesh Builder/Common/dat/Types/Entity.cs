@@ -30,21 +30,25 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// </summary>
         /// <value>The entities.</value>
         public ObservableCollection<Entity> _entities { get; set; }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
         /// <value>The name.</value>
         public string Name { get; init; }
+
         /// <summary>
         /// Gets or sets the server identifier.
         /// </summary>
         /// <value>The server identifier.</value>
         public uint ServerId { get; init; }
+
         /// <summary>
         /// Gets or sets the index of the target.
         /// </summary>
         /// <value>The index of the target.</value>
         public int TargetIndex { get; init; }
+
         /// <summary>
         /// Gets or sets the zone identifier.
         /// </summary>
@@ -61,17 +65,21 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
             {
                 var path = ($@"{AppDomain.CurrentDomain.BaseDirectory}Entities");
                 if (!Directory.Exists(path))
+                {
                     Directory.CreateDirectory(path);
-                if (!Directory.Exists(path)) return;
+                }
                 var outFile = File.Create($@"{path}\\ZoneID_{zone}_Entities.xml");
-                var formatter = new XmlSerializer(_entities.GetType());
-                formatter.Serialize(outFile, _entities);
-                outFile.Close();
+                using (outFile)
+                {
+                    var formatter = new XmlSerializer(_entities.GetType());
+                    formatter.Serialize(outFile, _entities);
+                }
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.ToString());
+                Console.ResetColor();
             }
         }
 

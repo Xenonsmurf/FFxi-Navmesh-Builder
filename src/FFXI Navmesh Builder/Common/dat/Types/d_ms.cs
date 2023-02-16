@@ -17,8 +17,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace Ffxi_Navmesh_Builder.Common.dat.Types
@@ -28,8 +28,6 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
     /// </summary>
     public class d_ms
     {
-      
-
         /// <summary>
         /// Initializes a new instance of the <see cref="d_ms"/> class.
         /// </summary>
@@ -49,31 +47,35 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// </summary>
         /// <value>The zones.</value>
         public ObservableCollection<Zones> _zones { get; set; }
+
         /// <summary>
         /// Gets or sets the log.
         /// </summary>
         /// <value>The log.</value>
         private Log Log { get; set; }
+
         /// <summary>
         /// Gets or sets the main.
         /// </summary>
         /// <value>The main.</value>
         private HomeView Main { get; set; }
+
         /// <summary>
         /// Gets or sets the position.
         /// </summary>
         /// <value>The position.</value>
         private int position { get; set; } = 0;
+
         /// <summary>
         /// Gets or sets the rom path.
         /// </summary>
         /// <value>The rom path.</value>
         private RomPath romPath { get; set; }
+
         public void ChangePath(string path)
         {
             romPath.InstallPath = path;
         }
-      
 
         /// <summary>
         /// Dumps to XML.
@@ -84,12 +86,16 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
             {
                 var path = ($@"{AppDomain.CurrentDomain.BaseDirectory}");
                 if (!Directory.Exists(path))
+                {
                     Directory.CreateDirectory(path);
-                if (!Directory.Exists(path)) return;
+                }
+
                 var outFile = File.Create($@"{path}\\ZoneList.xml");
-                var formatter = new XmlSerializer(_zones.GetType());
-                formatter.Serialize(outFile, _zones);
-                outFile.Close();
+                using (outFile)
+                {
+                    var formatter = new XmlSerializer(_zones.GetType());
+                    formatter.Serialize(outFile, _zones);
+                }
             }
             catch (Exception ex)
             {
@@ -97,6 +103,9 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                 Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(ParseZoneModelDat)}");
             }
         }
+
+        private readonly List<int> BlankNames = new() { 199, 210, 214, 219, 286 };
+
         public unsafe struct d_msg_header_t
         {
             public fixed byte d_msg[8];  //'d_msg' string denoting the file type.
@@ -136,7 +145,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// <param name="data">The data.</param>
         public unsafe void ParseD_MSG(Span<byte> data)
         {
-          try
+            try
             {
                 if (data.Length > sizeof(d_msg_header_t))
                 {
@@ -148,6 +157,8 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                             data[x] ^= 0xff;
                         }
                     }
+                    int index = 0;
+                    int noCCPos = 64;
                     for (var x = 0; x < header.EntryCount; x++)
                     {
                         d_msg_entryheader_t entry = new();
@@ -165,8 +176,7 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                             }
                             var position = header.HeaderSize + header.ToCSize + temp.Offset;
                             var tempData = data.Slice((int)position, (int)temp.Length);
-
-                            int index = 0;
+                            index = 0;
                             entry.Count = MemoryMarshal.Read<uint>(tempData[index..]);
                             entry.Offset = new uint[entry.Count];
                             entry.Flag = new uint[entry.Count];
@@ -188,8 +198,8 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                                 if (entry.Flag[y] != 0)
                                     continue;
                                 uint offset2 = MemoryMarshal.Read<uint>(tempData[((int)entry.Offset[y] + 0x1c)..]);
-                                if (entry.Offset[y] == 0 || offset2 == 0)
-                                    continue;
+                                //if (entry.Offset[y] == 0 || offset2 == 0)
+                                //    continue;
                                 var start = Convert.ToUInt32(position + (entry.Offset[y] + 0x1c));
                                 var textstart = Convert.ToUInt32((entry.Offset[y]) + 0x1c);
                                 var end = (tempData.Length - (int)(entry.Offset[y] + 0x1c));
@@ -206,19 +216,44 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                                         break;
                                     }
                                 }
-                                text = Encoding.ASCII.GetString(TextBytes.ToArray()).Trim('\0');
+
+                                if (TextBytes.All(singleByte => singleByte == 0) && BlankNames.Contains(x))
+                                {
+                                    switch (x)
+                                    {
+                                        case 199:
+                                            text = $@"Mog House 1";
+                                            break;
+
+                                        case 210:
+                                            text = $@"GM Home";
+                                            break;
+
+                                        case 214:
+                                            text = $@"Mog House 2";
+                                            break;
+
+                                        case 219:
+                                            text = $@"Mog House 3";
+                                            break;
+
+                                        case 286:
+                                            text = $@"Unimplemented";
+                                            break;
+                                    }
+                                }
+                                else
+                                    text = Encoding.ASCII.GetString(TextBytes.ToArray()).Trim('\0');
 
                                 var fileId = x < 256 ? x + 100 : x + 83635;
-
 
                                 _zones.Add(new Zones { Id = x, Name = text, Path = romPath.GetRomPath(fileId, romPath.TableDirectory) });
                             }
                         }
                     }
-
                 }
 
-                    var sortedList = new ObservableCollection<Zones>(_zones.OrderBy(x => x.Id).ToList());
+                var sortedList = new ObservableCollection<Zones>(_zones.OrderBy(x => x.Id).ToList());
                 _zones = sortedList;
             }
             catch (Exception ex)

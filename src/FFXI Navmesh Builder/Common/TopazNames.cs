@@ -11,11 +11,7 @@
 // </copyright>
 // <summary></summary>
 // ***********************************************************************
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FFXI_Navmesh_Builder.Common
 {
@@ -24,8 +20,6 @@ namespace FFXI_Navmesh_Builder.Common
     /// </summary>
     public class TopazNames
     {
-
-
         /// <summary>
         /// The zone names
         /// </summary>
@@ -331,6 +325,5 @@ namespace FFXI_Navmesh_Builder.Common
 {297,"Dynamis-Jeuno_[D]"},
 {298,"Walk_of_Echoes_[P1]"},
         };
-
     }
 }

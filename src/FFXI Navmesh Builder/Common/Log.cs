@@ -112,7 +112,7 @@ namespace Ffxi_Navmesh_Builder.Common
                 using (TextWriter tw = File.CreateText("Log.Bin"))
                 {
                     tw.WriteLine(
-                        $@"{ DateTime.Now.ToString(CultureInfo.InvariantCulture)}, {ex}, at line {lineNumber.ToString()},({caller}) ,{sFormName}");
+                        $@"{DateTime.Now.ToString(CultureInfo.InvariantCulture)}, {ex}, at line {lineNumber.ToString()},({caller}) ,{sFormName}");
                     tw.Close();
                 }
             }
