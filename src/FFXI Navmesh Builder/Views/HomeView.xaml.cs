@@ -438,23 +438,14 @@ namespace FFXI_Navmesh_Builder.Views
             {
                 try
                 {
-                    if (_saveEntityinfo)
+                    if (_saveEntityinfo && Dat != null)
                     {
-                        if (Dat != null)
-                        {
-                            if (zoneId < 1000 || zoneId > 1299)
-                            {
-                                var fileId = zoneId < 256 ? zoneId + 6720 : zoneId + 86235;
-                                Dat.ParseDat(fileId);
-                            }
-                            else
-                            {
-                                var fileId = zoneId + 66911;
-                                Dat.ParseDat(fileId);
-                            }
-                        }
+                        var fileId = zoneId < 1000 || zoneId > 1299 ?
+                            (zoneId < 256 ? zoneId + 6720 : zoneId + 86235) :
+                            zoneId + 66911;
 
-                        if (Dat != null) Dat.Entity.DumpToXml(zoneId);
+                        Dat.ParseDat(fileId);
+                        Dat.Entity.DumpToXml(zoneId);
                     }
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();

@@ -16,7 +16,6 @@ using FFXI_Navmesh_Builder.Views;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -147,23 +146,19 @@ namespace Ffxi_Navmesh_Builder.Common.dat
         public void ParseDat(int fileId)
         {
             var datPath = RomPath.GetRomPath(fileId, RomPath.TableDirectory);
-            var data = File.ReadAllBytes($@"{InstallPath}{datPath}").AsSpan();
+            var data = File.ReadAllBytes($@"{InstallPath}{datPath}");
+
             if (data.Length <= 0) return;
-            var value = MemoryMarshal.Read<int>(data[4..]);
-            var identifier = Encoding.ASCII.GetString(data.Slice(0, 4)).TrimStart('\0').TrimEnd('\0');
-            switch (identifier)
+
+            var identifier = Encoding.ASCII.GetString(data, 0, 4).TrimEnd('\0');
+
+            if (identifier == "d_ms")
             {
-                case "d_ms":
-                    //I have only set this up for the English ZoneList.dat.
-                    Dms.ParseD_MSG(data);
-                    break;
-
-                case "none":
-                    Entity.ParseNpcDat(data);
-                    break;
-
-                default:
-                    break;
+                Dms.ParseD_MSG(data);
+            }
+            else if (identifier == "none")
+            {
+                Entity.ParseNpcDat(data);
             }
         }
     }

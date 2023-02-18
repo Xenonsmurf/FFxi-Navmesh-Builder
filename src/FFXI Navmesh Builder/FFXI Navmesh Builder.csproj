@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
 
-	    <OutputType>Exe</OutputType>
+	    <OutputType>WinExe</OutputType>
 		  <UseWPF>true</UseWPF>
     <TargetFramework>net5.0-windows</TargetFramework>
     <PublishSingleFile>true</PublishSingleFile>
@@ -24,6 +24,9 @@
   <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	
   </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <Optimize>False</Optimize>
+    </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.5" />
     <PackageReference Include="MahApps.Metro.IconPacks" Version="4.8.0" />

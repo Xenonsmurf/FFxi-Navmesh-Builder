@@ -160,9 +160,6 @@ namespace Ffxi_Navmesh_Builder.Common.dat
                             break;
 
                         case ResourceType.Mzb:
-                            //testing  code from ida
-                            // Mzb.sub_46B7A80(block,1);
-                            //testing  code from ida
                             Mzb.DecodeMzb(block);
                             Mzb.ParseMzb(block);
                             break;

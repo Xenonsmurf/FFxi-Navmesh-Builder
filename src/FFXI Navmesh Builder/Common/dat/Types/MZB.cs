@@ -2,19 +2,20 @@
 // Assembly         : FFXI NAVMESH BUILDER
 // Author           : Xenonsmurf
 // Created          : 04-29-2021
-//
+// Special Thanks to Darkdoom22 for spotting the problem with Ceizak Battlegrounds.obj
+// and pointing out how to fix it!!
 // Last Modified By : Xenonsmurf
-// Last Modified On : 05-12-2021
+// Last Modified On : 18-02-2023
 // ***********************************************************************
 // <copyright file="MZB.cs" company="Xenonsmurf">
 //     Copyright © Xenonsmurf 2021
 // </copyright>
+
 // <summary></summary>
 // ***********************************************************************
 using FFXI_Navmesh_Builder.Views;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -79,18 +80,19 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         {
             try
             {
-                using var sw = new StreamWriter($@"{Directory.GetCurrentDirectory()}\Map Collision obj files\{fileName}.obj");
-                foreach (var v in _allVertices) sw.WriteLine($@"v {v.X.ToString(CultureInfo.InvariantCulture)} {v.Y} {-v.Z}");
-                foreach (var n in _allNormals) sw.WriteLine($@"vn {n.Nx} {n.Ny} {-n.Nz}");
-
+                using var sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), "Map Collision obj files", $"{fileName}.obj"));
+                foreach (var v in _allVertices)
+                    sw.WriteLine($"v {v.X:F} {v.Y:F} {-v.Z:F}");
+                foreach (var n in _allNormals)
+                    sw.WriteLine($"vn {n.Nx:F} {n.Ny:F} {-n.Nz:F}");
                 foreach (var t in _allTriangles)
-                    sw.WriteLine($@"f {1 + t.Iv0}//{1 + t.In0} {1 + t.Iv1}//{1 + t.In0} {1 + t.Iv2}//{1 + t.In0}");
+                    sw.WriteLine($"f {1 + t.Iv0}//{1 + t.In0} {1 + t.Iv1}//{1 + t.In0} {1 + t.Iv2}//{1 + t.In0}");
                 return true;
             }
             catch (Exception ex)
             {
                 Log.LogFile(ex.ToString(), nameof(ParseZoneModelDat));
-                Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(ParseZoneModelDat)}");
+                Log.AddDebugText(Main.RtbDebug, $"{ex} > {nameof(ParseZoneModelDat)}");
                 return false;
             }
         }
@@ -228,42 +230,30 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
         /// <param name="y">The y.</param>
         private void ParseGridEntry(Span<byte> data, int entryoffs, int x, int y)
         {
-            try
+            if (entryoffs <= 0 || entryoffs > data.Length) return;
+
+            var entries = new List<int>();
+            while (MemoryMarshal.Read<int>(data[entryoffs..]) is var c && c != 0)
             {
-                if (entryoffs <= 0 || entryoffs > data.Length) return;
-                var entries = new List<int>();
-
-                while (true)
-                {
-                    var c = MemoryMarshal.Read<int>(data[entryoffs..]);
-                    if (c == 0) break;
-                    entries.Add(c);
-                    entryoffs += 4;
-                }
-
-                if (!entries.Any()) return;
-                var pos = (uint)entries[0];
-                var xx = (int)((pos >> 14) & 0x1ff);
-                var yy = (int)((pos >> 23) & 0x1ff);
-                var flags = (int)(pos & 0x3fff);
-
-                for (var i = 1; i < entries.Count; i += 2)
-                {
-                    if (i + 1 < entries.Count)
-                    {
-                        var visentryoffset = entries[i + 0];
-                        var geometryoffset = entries[i + 1];
-                        if (visentryoffset > 0 && geometryoffset > 0 && visentryoffset < data.Length &&
-                            geometryoffset < data.Length)
-                            ParseGridMesh(data, x, y, visentryoffset, geometryoffset);
-                        else break;
-                    }
-                }
+                entries.Add(c);
+                entryoffs += 4;
             }
-            catch (Exception ex)
+
+            if (!entries.Any()) return;
+
+            var pos = (uint)entries[0];
+            var xx = (int)((pos >> 14) & 0x1ff);
+            var yy = (int)((pos >> 23) & 0x1ff);
+            var flags = (int)(pos & 0x3fff);
+
+            for (int i = 1; i < entries.Count; i += 2)
             {
-                Log.LogFile(ex.ToString(), nameof(Mzb));
-                Log.AddDebugText(Main.RtbDebug, $@"{ex} > {nameof(Mzb)}");
+                var visentryoffset = entries.ElementAtOrDefault(i);
+                var geometryoffset = entries.ElementAtOrDefault(i + 1);
+                if (visentryoffset <= 0 || geometryoffset <= 0 || visentryoffset >= data.Length || geometryoffset >= data.Length)
+                    break;
+
+                ParseGridMesh(data, x, y, visentryoffset, geometryoffset);
             }
         }
 
@@ -391,13 +381,15 @@ namespace Ffxi_Navmesh_Builder.Common.dat.Types
                             var y1 = MemoryMarshal.Read<Single>(data[(vertices + (i * 3 + 1) * 4)..]);
                             var z1 = MemoryMarshal.Read<Single>(data[(vertices + (i * 3 + 2) * 4)..]);
                             var w1 = 1.0f;
-
-                            _allVertices.Add(new Vertex()
+                            if ((m1[2] * x1 + m1[6] * y1 + m1[10] * z1 + m1[14] * w1) > -99329)
                             {
-                                X = m1[0] * x1 + m1[4] * y1 + m1[8] * z1 + m1[12] * w1,
-                                Y = -(m1[1] * x1 + m1[5] * y1 + m1[9] * z1 + m1[13] * w1),
-                                Z = m1[2] * x1 + m1[6] * y1 + m1[10] * z1 + m1[14] * w1
-                            });
+                                _allVertices.Add(new Vertex()
+                                {
+                                    X = m1[0] * x1 + m1[4] * y1 + m1[8] * z1 + m1[12] * w1,
+                                    Y = -(m1[1] * x1 + m1[5] * y1 + m1[9] * z1 + m1[13] * w1),
+                                    Z = m1[2] * x1 + m1[6] * y1 + m1[10] * z1 + m1[14] * w1
+                                });
+                            }
                         }
 
                     if (numnorm > 0)

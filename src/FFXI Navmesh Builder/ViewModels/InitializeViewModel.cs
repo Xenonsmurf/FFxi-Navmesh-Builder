@@ -66,41 +66,47 @@ namespace FFXI_Navmesh_Builder.ViewModels
         /// </summary>
         private async Task CheckFiles()
         {
-            await Task.Run(async () =>
+            UpdateLabel("Hello!.");
+            await Task.Delay(1000);
+            UpdateLabel("Just checking we have all required folders and files.");
+            await Task.Delay(1000);
+
+            foreach (var folder in _requiredFolders)
             {
-                UpdateLabel("Hello!.");
-                Task.Delay(1000).Wait();
-                UpdateLabel("Just checking we have all required folders and files.");
-                Task.Delay(1000).Wait();
+                string folderPath = $@"{Directory.GetCurrentDirectory()}\\{folder}";
 
-                foreach (var folder in _requiredFolders)
+                if (!Directory.Exists(folderPath))
                 {
-                    if (!Directory.Exists($@"{Directory.GetCurrentDirectory()}\\{folder}"))
-                    {
-                        Directory.CreateDirectory($@"{Directory.GetCurrentDirectory()}\\{folder}");
-                        UpdateLabel(@$"Creating Directory {folder}.");
-                        Task.Delay(500).Wait();
-                    }
-                    else
-                        UpdateLabel(@$"Directory found {folder}.");
-                    Task.Delay(500).Wait();
+                    Directory.CreateDirectory(folderPath);
+                    UpdateLabel(@$"Creating Directory {folder}.");
+                    await Task.Delay(500);
                 }
-                if (!File.Exists($@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll"))
+                else
                 {
-                    UpdateLabel("Missing FFXINAV.dll.");
-                    Task.Delay(500).Wait();
-                    await DownloadFile("https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/raw/main/FFXINAV.dll", ($@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll"));
-                }
-                if (File.Exists($@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll"))
-                {
-                    var str = FileVersionInfo.GetVersionInfo($@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll").ProductVersion;
-                    UpdateLabel(@$"Found FFXINAV.dll {str}.");
-                    Task.Delay(2000).Wait();
+                    UpdateLabel(@$"Directory found {folder}.");
                 }
 
-                UpdateLabel("Enjoy!...");
-                Task.Delay(500).Wait();
-            });
+                await Task.Delay(500);
+            }
+
+            string dllFilePath = $@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll";
+
+            if (!File.Exists(dllFilePath))
+            {
+                UpdateLabel("Missing FFXINAV.dll.");
+                await Task.Delay(500);
+                await DownloadFile("https://github.com/xenonsmurf/Ffxi_Navmesh_Builder/raw/main/FFXINAV.dll", dllFilePath);
+            }
+
+            if (File.Exists(dllFilePath))
+            {
+                string version = FileVersionInfo.GetVersionInfo(dllFilePath).ProductVersion;
+                UpdateLabel(@$"Found FFXINAV.dll {version}.");
+                await Task.Delay(2000);
+            }
+
+            UpdateLabel("Enjoy!...");
+            await Task.Delay(500);
         }
 
         /// <summary>
