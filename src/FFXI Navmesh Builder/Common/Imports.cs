@@ -68,6 +68,14 @@ namespace Ffxi_Navmesh_Builder.Common
         public bool DumpingMesh { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether NavMesh settings have been passed to the DLL.
+        /// FFXINAV.dll crashes with an access violation if DumpNavMesh is called before
+        /// NavMeshSettings, so callers must check (or set) this before building.
+        /// </summary>
+        /// <value><c> true </c> if settings were applied; otherwise, <c> false </c>.</value>
+        public bool SettingsApplied { get; private set; }
+
+        /// <summary>
         /// Gets or sets the way-points.
         /// </summary>
         /// <value>The way-points.</value>
@@ -131,9 +139,17 @@ namespace Ffxi_Navmesh_Builder.Common
             double edgeError, double vertsPp,
             double detailSampDistance, double detailMaxError, bool debugMode)
         {
+            if (cellSize <= 0 || cellHeight <= 0 || agentHeight <= 0 || agentRadius < 0 || tileSize <= 0 ||
+                vertsPp < 3)
+                throw new ArgumentException(
+                    $"Invalid NavMesh settings: cellSize={cellSize}, cellHeight={cellHeight}, agentHeight={agentHeight}, " +
+                    $"agentRadius={agentRadius}, tileSize={tileSize}, vertsPerPoly={vertsPp}. " +
+                    "All sizes must be greater than zero (FFXINAV.dll crashes on zero/negative values).");
+
             navMeshSettings(_mPNativeObject, cellSize, cellHeight, agentHeight, agentRadius, maxClimb, maxSlope,
                 tileSize,
                 regionMinSize, regionMergeSize, edgeMaxLen, edgeError, vertsPp, detailSampDistance, detailMaxError, debugMode);
+            SettingsApplied = true;
         }
 
         /// <summary>
@@ -167,16 +183,29 @@ namespace Ffxi_Navmesh_Builder.Common
 
         /// <summary>
         /// Builds and Saves a NavMesh, remember to pass NavMesh Settings to the DLL before you try
-        /// and build a mesh.
+        /// and build a mesh. The resulting mesh is written to "Dumped NavMeshes\&lt;objname&gt;.nav"
+        /// relative to the current working directory.
         /// </summary>
-        /// <param name="file">The file.</param>
-        public async Task Dump_NavMesh(string file)
+        /// <param name="file">Path to the .obj file to build a NavMesh from.</param>
+        /// <returns><c>true</c> if the DLL reported the mesh was built and saved; otherwise <c>false</c>.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when NavMesh settings were never applied.
+        /// Calling DumpNavMesh without settings causes a native access violation that kills the
+        /// whole process, so this guard turns it into a catchable error instead.</exception>
+        public Task<bool> Dump_NavMesh(string file)
         {
-            if (DumpNavMesh(_mPNativeObject, file))
+            if (!SettingsApplied)
+                throw new InvalidOperationException(
+                    "NavMesh settings have not been applied to FFXINAV.dll. " +
+                    "Apply settings before building a NavMesh (the DLL access-violates otherwise).");
+
+            var result = DumpNavMesh(_mPNativeObject, file);
+            if (result)
             {
                 Unload();
                 UnloadMeshBuilder();
             }
+
+            return Task.FromResult(result);
         }
 
         /// <summary>
@@ -613,7 +642,7 @@ namespace Ffxi_Navmesh_Builder.Common
             var returnArray = new PositionT[numberOfElements];
             for (var x = 0; x < numberOfElements; x++)
             {
-                var unmanagedPointerToVectorEntry = new IntPtr(unmanagedPointerToVector.ToInt32() + x * sizeOfElement);
+                var unmanagedPointerToVectorEntry = IntPtr.Add(unmanagedPointerToVector, x * sizeOfElement);
                 returnArray[x] = (PositionT)Marshal.PtrToStructure(unmanagedPointerToVectorEntry, typeof(PositionT));
             }
 

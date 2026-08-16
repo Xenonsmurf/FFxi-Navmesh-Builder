@@ -23,7 +23,6 @@
   <Product>FFXI NAVMESH BUILDER</Product>
   <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-  <BaseOutputPath>C:\Users\xenon\Desktop\Build</BaseOutputPath>
 	
   </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -57,7 +56,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <Target Name="AfterCompile">
+  <Target Name="AfterCompile" Condition="Exists('$(ProjectDir)_ConfuserEx\Confuser.CLI.exe')">
     <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Release&quot; (&quot;$(ProjectDir)_ConfuserEx\Confuser.CLI.exe&quot; &quot;$(ProjectDir)_ConfuserEx\c.crproj&quot;)&#xD;&#xA;" />
   </Target>
 </Project>

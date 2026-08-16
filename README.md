@@ -143,7 +143,7 @@ here you can build navmeshes using FFXINAV.dll
 
 1. These settings are the "Default settings Topaz NavMeshes are made with. Changes to these settings will affect performance on the server.
 
-2. Click "Apply NavMesh Settings" this is a must, ffxinav.dll needs these settings to be able to build navmeshes.
+2. (Optional) Click "Apply NavMesh Settings" to push the current settings to ffxinav.dll. The application now applies the settings automatically before every build, so forgetting this step no longer crashes the application.
 
 3. Click "Select obj file to build a NavMesh for." this will build a navmesh for the selected obj.
 
@@ -172,9 +172,17 @@ When you click stop it will finish the Current NavMesh build.
      *  9. When you are finished click save from the tool menu on the right hand side.
      *  10.It will save as "all_tiles_navmesh.bin" you will need to rename this to "ZoneName.nav".   
        
+##### the application instantly closed / crashed when I tried to build a NavMesh?.
+
+* Older builds crashed with a native access violation inside FFXINAV.dll if "Apply NavMesh Settings" was not clicked before building (the DLL divides by the cell/tile sizes, which default to zero). The application now applies validated settings automatically before every build and sanity-checks the .obj file first. If a build still fails, check the debug window or the session log for the reason.
+
+##### where are the log files?.
+
+* Each run of the application writes a plain-text log to the "logs" folder next to the exe, named like `logs\NavmeshBuilder_2026-08-02_14-30-00.log`. It contains everything shown in the on-screen debug window (settings applied, obj validation stats, build results, timings) plus any errors with their call sites. Logs older than 14 days are cleaned up automatically. (Older versions wrote to a file called log.bin — despite the name it was plain text; it is no longer used.)
+
 ##### when I select a zone from the list to build a collision obj file for nothing happens or I get an error?. 
    
-* open an issue and check what info is in log.bin.
+* open an issue and attach the newest file from the "logs" folder.
 
 ##### How do i deal with doors? the navmesh wont go past them?.
    

@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -44,6 +45,12 @@ namespace FFXI_Navmesh_Builder.Views
         /// The build meshes
         /// </summary>
         private bool _buildMeshes;
+
+        /// <summary>
+        /// True while a NavMesh build is running. FFXINAV.dll is not thread safe, so
+        /// only one build may talk to it at a time.
+        /// </summary>
+        private bool _isNavBuildRunning;
 
         /// <summary>
         /// Gets or sets the tnames.
@@ -135,66 +142,67 @@ namespace FFXI_Navmesh_Builder.Views
                 switch (AllObjBtn.Content)
                 {
                     case "Build NavMeshes for all .OBJ files.":
-                        AllObjBtn.Content = @"Stop building NavMeshes.";
-                        _buildMeshes = true;
-                        _cancellationToken = new CancellationTokenSource();
-                        var path = $@"{Directory.GetCurrentDirectory()}\Map Collision obj files";
-                        var fileCount = Directory.GetFiles(path, "*.obj", SearchOption.AllDirectories).Length;
-                        Log.AddDebugText(RtbDebug, $@"{fileCount.ToString()}.obj files fould in Map Collision obj folder");
-                        foreach (var file in Directory.EnumerateFiles(string.Format(path, "*.obj")))
+                        if (_isNavBuildRunning)
                         {
-                            if (!_buildMeshes) continue;
-                            var _fullPath = Path.GetFileName(file);
-                            var _name = _fullPath.Substring(0, _fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
-                            Log.AddDebugText(RtbDebug, $@"Building NavMesh for {_name} please wait!...");
-                            if (File.Exists($@"{Directory.GetCurrentDirectory()}\Dumped NavMeshes\\{_name}nav"))
-                            {
-                                var messageBoxText = $@"Are you sure you want to overwrite {_name}.nav ?";
-                                var caption = "NavMesh";
-                                var button = MessageBoxButton.YesNoCancel;
-                                var icon = MessageBoxImage.Warning;
-                                var result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+                            Log.AddDebugText(RtbDebug, @"A NavMesh build is already running, wait for it to finish.");
+                            return;
+                        }
 
-                                switch (result)
+                        var path = $@"{Directory.GetCurrentDirectory()}\Map Collision obj files";
+                        if (!Directory.Exists(path))
+                        {
+                            Log.AddDebugText(RtbDebug, $@"Folder not found: {path}");
+                            return;
+                        }
+
+                        // The old code passed the pattern through string.Format, which ignored it
+                        // and fed every file type (nav, mtl, ...) to the native obj loader.
+                        var objFiles = Directory.GetFiles(path, "*.obj", SearchOption.TopDirectoryOnly);
+                        Log.AddDebugText(RtbDebug, $@"{objFiles.Length} .obj files found in Map Collision obj files folder.");
+                        if (objFiles.Length == 0) return;
+
+                        AllObjBtn.Content = @"Stop building NavMeshes.";
+                        _isNavBuildRunning = true;
+                        SelectObjBtn.IsEnabled = false;
+                        _buildMeshes = true;
+                        try
+                        {
+                            for (var i = 0; i < objFiles.Length; i++)
+                            {
+                                if (!_buildMeshes) break;
+                                var file = objFiles[i];
+                                Log.AddDebugText(RtbDebug, $@"[{i + 1}/{objFiles.Length}] Building NavMesh for {Path.GetFileName(file)}, please wait!...");
+
+                                var navPath = Path.Combine(Directory.GetCurrentDirectory(), "Dumped NavMeshes",
+                                    $"{Path.GetFileNameWithoutExtension(file)}.nav");
+                                if (File.Exists(navPath))
                                 {
-                                    case MessageBoxResult.Cancel:
-                                        return;
-                                        break;
-
-                                    case MessageBoxResult.Yes:
-                                        _cancellationToken = new CancellationTokenSource();
-                                        await BuildNavMesh(file);
-                                        break;
-
-                                    case MessageBoxResult.No:
-                                        break;
-
-                                    case MessageBoxResult.None:
-                                        break;
-
-                                    case MessageBoxResult.OK:
-                                        break;
-
-                                    default:
-                                        throw new ArgumentOutOfRangeException();
+                                    var result = MessageBox.Show(
+                                        $@"Are you sure you want to overwrite {Path.GetFileName(navPath)} ?",
+                                        "NavMesh", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                                    if (result == MessageBoxResult.Cancel) break;
+                                    if (result != MessageBoxResult.Yes) continue;
                                 }
-                            }
-                            if (!File.Exists($@"{Directory.GetCurrentDirectory()}\Dumped NavMeshes\\{_name}nav"))
-                            {
+
                                 _cancellationToken = new CancellationTokenSource();
                                 await BuildNavMesh(file);
                             }
                         }
-                        AllObjBtn.Content = @"Build NavMeshes for all .OBJ files.";
-                        _buildMeshes = false;
-                        _cancellationToken?.Cancel();
-
+                        finally
+                        {
+                            AllObjBtn.Content = @"Build NavMeshes for all .OBJ files.";
+                            _buildMeshes = false;
+                            _isNavBuildRunning = false;
+                            SelectObjBtn.IsEnabled = true;
+                        }
+                        Log.AddDebugText(RtbDebug, @"Finished building NavMeshes.");
                         return;
 
                     case "Stop building NavMeshes.":
                         _buildMeshes = false;
                         _cancellationToken?.Cancel();
                         AllObjBtn.Content = @"Build NavMeshes for all .OBJ files.";
+                        Log.AddDebugText(RtbDebug, @"Stopping after the current NavMesh finishes...");
                         return;
                 }
             }
@@ -249,11 +257,21 @@ namespace FFXI_Navmesh_Builder.Views
         }
 
         /// <summary>
-        /// Builds the nav mesh.
+        /// Builds the nav mesh. Ensures FFXINAV.dll is loaded and has validated settings before
+        /// the native build runs — calling DumpNavMesh without settings kills the whole process
+        /// with a native access violation that .NET cannot catch.
         /// </summary>
-        /// <param name="file">The file.</param>
+        /// <param name="file">The .obj file to build a NavMesh from.</param>
         private async Task BuildNavMesh(string file)
         {
+            // UI-thread work first: create the native class and push validated settings into it.
+            if (!EnsureFfxiNav()) return;
+            if (!ApplyNavMeshSettingsFromUi()) return;
+
+            var navDir = Path.Combine(Directory.GetCurrentDirectory(), "Dumped NavMeshes");
+            Directory.CreateDirectory(navDir);
+            var navPath = Path.Combine(navDir, $"{Path.GetFileNameWithoutExtension(file)}.nav");
+
             async Task Function()
             {
                 try
@@ -263,14 +281,34 @@ namespace FFXI_Navmesh_Builder.Views
                         _cancellationToken?.Cancel();
                         return;
                     }
+
+                    if (!ValidateObjFile(file)) return;
+
                     var stopWatch = new Stopwatch();
                     stopWatch.Start();
+                    Log.AddDebugText(RtbDebug, $@"Handing {Path.GetFileName(file)} to FFXINAV.dll, this can take a while for big zones...");
 
-                    await _ffxiNav.Dump_NavMesh(file);
+                    var built = await _ffxiNav.Dump_NavMesh(file);
                     stopWatch.Stop();
                     var elapsed = stopWatch.Elapsed;
                     var elapsedTime = $"{elapsed.Hours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}.{elapsed.Milliseconds / 10:00}";
-                    Log.AddDebugText(RtbDebug, $@"Time Taken to Build NavMesh = {elapsedTime}");
+
+                    if (built && File.Exists(navPath))
+                    {
+                        var navSize = new FileInfo(navPath).Length;
+                        Log.AddDebugText(RtbDebug, $@"NavMesh saved to {navPath} ({navSize / 1024:N0} KB). Time Taken to Build NavMesh = {elapsedTime}");
+                        Log.LogFile($"NavMesh built: {navPath} ({navSize} bytes) in {elapsedTime}", nameof(HomeView));
+                    }
+                    else if (built)
+                    {
+                        Log.AddDebugText(RtbDebug, $@"FFXINAV.dll reported success but {navPath} was not created. Time Taken = {elapsedTime}");
+                        Log.LogFile($"NavMesh build reported success but output missing: {navPath}", nameof(HomeView));
+                    }
+                    else
+                    {
+                        Log.AddDebugText(RtbDebug, $@"FFXINAV.dll could not build a NavMesh from {Path.GetFileName(file)} (build returned false). Time Taken = {elapsedTime}");
+                        Log.LogFile($"NavMesh build failed for {file}", nameof(HomeView));
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -279,6 +317,186 @@ namespace FFXI_Navmesh_Builder.Views
                 }
             }
             await Task.Run(Function, _cancellationToken.Token);
+        }
+
+        /// <summary>
+        /// Makes sure the FFXINAV.dll wrapper exists, creating it if needed. Previously the wrapper
+        /// was only created when the NavMesh tab got focus, so builds could run against a null or
+        /// settings-less instance.
+        /// </summary>
+        /// <returns><c>true</c> if the wrapper is ready; otherwise <c>false</c>.</returns>
+        private bool EnsureFfxiNav()
+        {
+            if (_ffxiNav != null) return true;
+            try
+            {
+                if (!File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "FFXINAV.dll")))
+                {
+                    Log.AddDebugText(RtbDebug, @"FFXINAV.dll was not found next to the application, cannot build NavMeshes.");
+                    return false;
+                }
+
+                _ffxiNav = new Ffxinav();
+                Log.AddDebugText(RtbDebug, @"FFXINAV.dll loaded.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.LogFile(ex.ToString(), nameof(HomeView));
+                Log.AddDebugText(RtbDebug, $@"Failed to load FFXINAV.dll: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Reads the NavMesh settings from the UI (falling back to the documented defaults when a
+        /// field was cleared) and applies them to FFXINAV.dll. The DLL needs settings before every
+        /// build; empty fields used to be sent as 0 which crashes the native tiler.
+        /// </summary>
+        /// <returns><c>true</c> if settings were applied; otherwise <c>false</c>.</returns>
+        private bool ApplyNavMeshSettingsFromUi()
+        {
+            try
+            {
+                var cellSize = cellSizeValue.Value ?? 0.4;
+                var cellHeight = cellHeightValue.Value ?? 0.2;
+                var agentHeight = agentHeightValue.Value ?? 1.8;
+                var agentRadius = agentRadiusValue.Value ?? 0.3;
+                var maxClimb = maxClimbValue.Value ?? 0.5;
+                var maxSlope = maxSlopeValue.Value ?? 46.0;
+                var tileSize = tileSizeValue.Value ?? 256.0;
+                var regionMinSize = regionMinSizeValue.Value ?? 8.0;
+                var regionMergeSize = regionMergeSizeValue.Value ?? 20.0;
+                var edgeMaxLen = edgeMaxLenValue.Value ?? 12.0;
+                var edgeMaxError = edgeMaxErrorValue.Value ?? 1.3;
+                var vertsPerPoly = vertsPerPolyValue.Value ?? 6.0;
+                var detailSampleDist = detailSampleDistanceValue.Value ?? 6.0;
+                var detailSampleMaxError = detailSampleMaxErrorValue.Value ?? 1.0;
+                var dllDebug = dllDebugMode.IsChecked == true;
+
+                _ffxiNav.ChangeNavMeshSettings(cellSize, cellHeight, agentHeight, agentRadius, maxClimb,
+                    maxSlope, tileSize, regionMinSize, regionMergeSize, edgeMaxLen, edgeMaxError, vertsPerPoly,
+                    detailSampleDist, detailSampleMaxError, dllDebug);
+
+                Log.AddDebugText(RtbDebug,
+                    $@"NavMesh settings applied: cellSize={cellSize}, cellHeight={cellHeight}, agentHeight={agentHeight}, agentRadius={agentRadius}, maxClimb={maxClimb}, maxSlope={maxSlope}, tileSize={tileSize}, regionMinSize={regionMinSize}, regionMergeSize={regionMergeSize}, edgeMaxLen={edgeMaxLen}, edgeMaxError={edgeMaxError}, vertsPerPoly={vertsPerPoly}, detailSampleDist={detailSampleDist}, detailSampleMaxError={detailSampleMaxError}, dllDebugMode={dllDebug}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.LogFile(ex.ToString(), nameof(HomeView));
+                Log.AddDebugText(RtbDebug, $@"Failed to apply NavMesh settings: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Streams through an .obj file and sanity checks it before it is handed to FFXINAV.dll.
+        /// Junk geometry (NaN vertices, or vertices millions of units out — see upstream issue #7
+        /// with Ceizak Battlegrounds dats) makes the native tiler allocate a gigantic grid and
+        /// crash the process, so bad files are rejected here with a readable error instead.
+        /// </summary>
+        /// <param name="file">The .obj file to validate.</param>
+        /// <returns><c>true</c> if the file looks buildable; otherwise <c>false</c>.</returns>
+        private bool ValidateObjFile(string file)
+        {
+            const double saneCoordinateLimit = 20000;
+            try
+            {
+                var info = new FileInfo(file);
+                if (!info.Exists)
+                {
+                    Log.AddDebugText(RtbDebug, $@"Obj file not found: {file}");
+                    return false;
+                }
+                if (info.Length == 0)
+                {
+                    Log.AddDebugText(RtbDebug, $@"Obj file is empty: {file}");
+                    return false;
+                }
+                if (!string.Equals(Path.GetExtension(file), ".obj", StringComparison.OrdinalIgnoreCase))
+                {
+                    Log.AddDebugText(RtbDebug, $@"Skipping {Path.GetFileName(file)}, not a .obj file.");
+                    return false;
+                }
+                if (info.Length > 300L * 1024 * 1024)
+                    Log.AddDebugText(RtbDebug, $@"Warning: {Path.GetFileName(file)} is {info.Length / (1024 * 1024)} MB, a 32-bit build may run out of memory on files this big.");
+
+                Log.AddDebugText(RtbDebug, $@"Validating {Path.GetFileName(file)} ({info.Length / (1024 * 1024)} MB)...");
+
+                long vertexCount = 0, faceCount = 0, badVertexCount = 0;
+                double minX = double.MaxValue, minY = double.MaxValue, minZ = double.MaxValue;
+                double maxX = double.MinValue, maxY = double.MinValue, maxZ = double.MinValue;
+
+                using (var reader = new StreamReader(file))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (line.Length < 2) continue;
+                        if (line[0] == 'v' && line[1] == ' ')
+                        {
+                            var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                            if (parts.Length < 4
+                                || !double.TryParse(parts[1], NumberStyles.Float, CultureInfo.InvariantCulture, out var x)
+                                || !double.TryParse(parts[2], NumberStyles.Float, CultureInfo.InvariantCulture, out var y)
+                                || !double.TryParse(parts[3], NumberStyles.Float, CultureInfo.InvariantCulture, out var z)
+                                || double.IsNaN(x) || double.IsNaN(y) || double.IsNaN(z)
+                                || double.IsInfinity(x) || double.IsInfinity(y) || double.IsInfinity(z))
+                            {
+                                badVertexCount++;
+                                continue;
+                            }
+
+                            vertexCount++;
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                            if (z < minZ) minZ = z;
+                            if (z > maxZ) maxZ = z;
+                        }
+                        else if (line[0] == 'f' && line[1] == ' ')
+                        {
+                            faceCount++;
+                        }
+                    }
+                }
+
+                if (badVertexCount > 0)
+                {
+                    Log.AddDebugText(RtbDebug, $@"{Path.GetFileName(file)} contains {badVertexCount} unreadable/NaN vertices, refusing to build (re-dump the obj for this zone).");
+                    Log.LogFile($"Obj validation failed for {file}: {badVertexCount} bad vertices", nameof(HomeView));
+                    return false;
+                }
+                if (vertexCount == 0 || faceCount == 0)
+                {
+                    Log.AddDebugText(RtbDebug, $@"{Path.GetFileName(file)} has no geometry (vertices={vertexCount}, faces={faceCount}), refusing to build.");
+                    Log.LogFile($"Obj validation failed for {file}: no geometry", nameof(HomeView));
+                    return false;
+                }
+
+                var extentX = maxX - minX;
+                var extentY = maxY - minY;
+                var extentZ = maxZ - minZ;
+                if (Math.Abs(minX) > saneCoordinateLimit || Math.Abs(maxX) > saneCoordinateLimit ||
+                    Math.Abs(minY) > saneCoordinateLimit || Math.Abs(maxY) > saneCoordinateLimit ||
+                    Math.Abs(minZ) > saneCoordinateLimit || Math.Abs(maxZ) > saneCoordinateLimit)
+                {
+                    Log.AddDebugText(RtbDebug, $@"{Path.GetFileName(file)} bounding box is insane (X {minX:F1}..{maxX:F1}, Y {minY:F1}..{maxY:F1}, Z {minZ:F1}..{maxZ:F1}). It likely contains junk vertices from the dat (known issue with some zones). Refusing to build, FFXINAV.dll would crash trying to tile this.");
+                    Log.LogFile($"Obj validation failed for {file}: bounding box out of range X {minX}..{maxX} Y {minY}..{maxY} Z {minZ}..{maxZ}", nameof(HomeView));
+                    return false;
+                }
+
+                Log.AddDebugText(RtbDebug, $@"{Path.GetFileName(file)} looks good: {vertexCount:N0} vertices, {faceCount:N0} faces, bounds X {minX:F1}..{maxX:F1}, Y {minY:F1}..{maxY:F1}, Z {minZ:F1}..{maxZ:F1} (extent {extentX:F0} x {extentY:F0} x {extentZ:F0}).");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.LogFile(ex.ToString(), nameof(HomeView));
+                Log.AddDebugText(RtbDebug, $@"Could not validate {file}: {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>
@@ -662,52 +880,46 @@ namespace FFXI_Navmesh_Builder.Views
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         private async void SelectOBJBtn_Click(object sender, RoutedEventArgs e)
         {
-            var openFileDialog = new OpenFileDialog();
-            openFileDialog.InitialDirectory = $@"{Directory.GetCurrentDirectory()}\Map Collision obj files";
+            if (_isNavBuildRunning)
+            {
+                Log.AddDebugText(RtbDebug, @"A NavMesh build is already running, wait for it to finish.");
+                return;
+            }
+
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = $@"{Directory.GetCurrentDirectory()}\Map Collision obj files",
+                Filter = "Wavefront OBJ (*.obj)|*.obj|All files (*.*)|*.*"
+            };
             if (openFileDialog.ShowDialog() != true) return;
             Log.AddDebugText(RtbDebug, $@"Obj File Selected = {openFileDialog.FileName}");
-            _buildMeshes = true;
 
-            var _fullPath = Path.GetFileName(openFileDialog.FileName);
-            var _name = _fullPath.Substring(0, _fullPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
-            if (File.Exists($@"{Directory.GetCurrentDirectory()}\Dumped NavMeshes\\{_name}nav"))
+            var navPath = Path.Combine(Directory.GetCurrentDirectory(), "Dumped NavMeshes",
+                $"{Path.GetFileNameWithoutExtension(openFileDialog.FileName)}.nav");
+            if (File.Exists(navPath))
             {
-                var messageBoxText = $@"Are you sure you want to overwrite {_name}.nav ?";
-                var caption = "NavMesh";
-                var button = MessageBoxButton.YesNoCancel;
-                var icon = MessageBoxImage.Warning;
-                MessageBoxResult result;
-                result = MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-
-                switch (result)
-                {
-                    case MessageBoxResult.Cancel:
-                        break;
-
-                    case MessageBoxResult.Yes:
-                        _cancellationToken = new CancellationTokenSource();
-                        await BuildNavMesh(openFileDialog.FileName);
-                        break;
-
-                    case MessageBoxResult.No:
-                        break;
-
-                    case MessageBoxResult.None:
-                        break;
-
-                    case MessageBoxResult.OK:
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                var result = MessageBox.Show(
+                    $@"Are you sure you want to overwrite {Path.GetFileName(navPath)} ?",
+                    "NavMesh", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.Yes);
+                if (result != MessageBoxResult.Yes) return;
             }
-            if (!File.Exists($@"{Directory.GetCurrentDirectory()}\Dumped NavMeshes\\{_name}nav"))
+
+            try
             {
+                _isNavBuildRunning = true;
+                SelectObjBtn.IsEnabled = false;
+                AllObjBtn.IsEnabled = false;
+                _buildMeshes = true;
                 _cancellationToken = new CancellationTokenSource();
                 await BuildNavMesh(openFileDialog.FileName);
             }
-            _buildMeshes = false;
+            finally
+            {
+                _buildMeshes = false;
+                _isNavBuildRunning = false;
+                SelectObjBtn.IsEnabled = true;
+                AllObjBtn.IsEnabled = true;
+            }
         }
 
         /// <summary>
@@ -717,21 +929,8 @@ namespace FFXI_Navmesh_Builder.Views
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void SettingsBtn_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                _ffxiNav.ChangeNavMeshSettings(Convert.ToDouble(cellSizeValue.Value), Convert.ToDouble(cellHeightValue.Value)
-                    , Convert.ToDouble(agentHeightValue.Value), Convert.ToDouble(agentRadiusValue.Value), Convert.ToDouble(maxClimbValue.Value)
-                    , Convert.ToDouble(maxSlopeValue.Value), Convert.ToDouble(tileSizeValue.Value), Convert.ToDouble(regionMinSizeValue.Value),
-                    Convert.ToDouble(regionMergeSizeValue.Value), Convert.ToDouble(edgeMaxLenValue.Value), Convert.ToDouble(edgeMaxErrorValue.Value), Convert.ToDouble(vertsPerPolyValue.Value)
-                    , Convert.ToDouble(detailSampleDistanceValue.Value), Convert.ToDouble(detailSampleMaxErrorValue.Value),
-                    dllDebugMode.IsChecked != null && ((bool)dllDebugMode.IsChecked));
-                Log.AddDebugText(RtbDebug, "NavMesh Settings changed.");
-            }
-            catch (Exception ex)
-            {
-                Log.LogFile(ex.ToString(), nameof(HomeView));
-                Log.AddDebugText(RtbDebug, $@"{ex} > {nameof(HomeView)}");
-            }
+            if (!EnsureFfxiNav()) return;
+            ApplyNavMeshSettingsFromUi();
         }
 
         /// <summary>
@@ -766,10 +965,7 @@ namespace FFXI_Navmesh_Builder.Views
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void TabItem_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (_ffxiNav == null && File.Exists($@"{Directory.GetCurrentDirectory()}\\FFXINAV.dll"))
-            {
-                _ffxiNav = new Ffxinav();
-            }
+            EnsureFfxiNav();
         }
 
         /// <summary>

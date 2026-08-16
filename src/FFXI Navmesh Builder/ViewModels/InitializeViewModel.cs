@@ -34,7 +34,7 @@ namespace FFXI_Navmesh_Builder.ViewModels
         /// The required folders
         /// </summary>
         private readonly List<string> _requiredFolders = new List<string>
-        { "Map Collision obj files", "Map Collision obj files","Dumped NavMeshes", "Sub Region Info", "Entities"};
+        { "Map Collision obj files", "Dumped NavMeshes", "Sub Region Info", "Entities", "logs" };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InitializeViewModel"/> class.
